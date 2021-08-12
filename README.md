@@ -3,23 +3,23 @@
 The official implementation of GMOEA [1] with Pytorch:
 
     GMOEA.py is the main file.
-
-    GAN_model.py is the GAN model used in GMOEA.
-
+    
+    GAN_model.py is the GAN model used in GMOEA.(Add cpu version)
+    
     IMMOEA_pro.py: IMF test problems
-
+    
     global_parameter.py is the class including the general parameters for running GMOEA.
-
+    
     mating_selection.py is the mating selection strategy used in GMOEA. Specifically, the mating selection strategy in RSEA [2] is used.
-
+    
     spea2_env.py is the environmental selection strategy used in GMOEA. Specifically, the environmental selection strategy in SPEA2 [3] is used.
-
+    
     NDSort.py is the non-dominated sorting method using the efficient non-dominated sorting method in [4].
-
+    
     EAreal.py is the simulated binary crossover and polynomial mutation.
-
+    
     PM_mutation.py is the polynomial mutation [5].
-
+    
     tournament.py is the K-tournament selection [6].
 
 ## Reference

@@ -46,8 +46,10 @@ class GAN(object):
         self.BCE_loss = nn.BCELoss()
         self.G = Generator(self.d, self.n_noise)
         self.D = Discriminator(self.d)
-        self.G.cuda()
-        self.D.cuda()
+        self.cuda = True if torch.cuda.is_available() else False  # Determine whether GPU can be used
+        if self.cuda:
+            self.G.cuda()
+            self.D.cuda()
         self.G_optimizer = optim.Adam(self.G.parameters(), 4*lr)
         self.D_optimizer = optim.Adam(self.D.parameters(), lr)
         self.epoches = epoches
@@ -75,8 +77,12 @@ class GAN(object):
                 batch_size = np.shape(given_x)[0]
 
                 # (Tensor, cuda, Variable)
-                given_x_ = Variable(torch.from_numpy(given_x).cuda()).float()
-                given_y = Variable(torch.from_numpy(given_y).cuda()).float()
+                if self.cuda:
+                    given_x_ = Variable(torch.from_numpy(given_x).cuda()).float()
+                    given_y = Variable(torch.from_numpy(given_y).cuda()).float()
+                else:
+                    given_x_ = Variable(torch.from_numpy(given_x)).float()
+                    given_y = Variable(torch.from_numpy(given_y)).float()
                 d_results_real = self.D(given_x_.detach())
 
             # train the D with fake data
@@ -84,8 +90,12 @@ class GAN(object):
                 fake_x = torch.from_numpy(np.maximum(np.minimum(fake_x, np.ones((batch_size, self.d))),
                                                          np.zeros((batch_size, self.d))))
 
-                fake_y = Variable(torch.zeros((batch_size, 1)).cuda())
-                fake_x_ = Variable(fake_x.cuda()).float()
+                if self.cuda:
+                    fake_y = Variable(torch.zeros((batch_size, 1)).cuda())
+                    fake_x_ = Variable(fake_x.cuda()).float()
+                else:
+                    fake_y = Variable(torch.zeros((batch_size, 1)))
+                    fake_x_ = Variable(fake_x).float()
                 g_results = self.G(fake_x_.detach())
                 d_results_fake = self.D(g_results)
 
@@ -99,8 +109,12 @@ class GAN(object):
                 fake_x = np.random.multivariate_normal(center, cov, batch_size)
                 fake_x = torch.from_numpy(np.maximum(np.minimum(fake_x, np.ones((batch_size, self.d))),
                                                      np.zeros((batch_size, self.d))))
-                fake_x_ = Variable(fake_x.cuda()).float()
-                fake_y = Variable(torch.ones((batch_size, 1)).cuda())
+                if self.cuda:
+                    fake_x_ = Variable(fake_x.cuda()).float()
+                    fake_y = Variable(torch.ones((batch_size, 1)).cuda())
+                else:
+                    fake_x_ = Variable(fake_x).float()
+                    fake_y = Variable(torch.ones((batch_size, 1)))
                 g_results = self.G(fake_x_)
                 d_results = self.D(g_results)
                 g_train_loss = self.BCE_loss(d_results, fake_y)   # vanilla GAN loss
@@ -122,7 +136,8 @@ class GAN(object):
         noises = np.random.multivariate_normal(center, cov, batch_size)
         noises = torch.from_numpy(np.maximum(np.minimum(noises, np.ones((batch_size, self.d))),
                                                       np.zeros((batch_size, self.d))))
-        decs = self.G(Variable(noises.cuda()).float()).cpu().data.numpy()
+        decs = self.G(Variable(noises.cuda()).float()).cpu().data.numpy() if self.cuda else \
+            self.G(Variable(noises).float()).cpu().data.numpy()
         return decs
 
     def discrimate(self, off):
@@ -131,7 +146,8 @@ class GAN(object):
         batch_size = off.shape[0]
         off = off.reshape(batch_size, 1, off.shape[1])
 
-        x = Variable(torch.from_numpy(off).cuda(), volatile=True).float()
+        x = Variable(torch.from_numpy(off).cuda(), volatile=True).float() if self.cuda else \
+            Variable(torch.from_numpy(off), volatile=True).float()
         d_results = self.D(x).cpu().data.numpy()
         return d_results.reshape(batch_size)
 

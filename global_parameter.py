@@ -6,7 +6,7 @@ class GlobalParameter:
     def __init__(self, m=2, n=100, d=3, eva=10000, decs=None, operator=None, pro=None, run=None):
         self.m = m
         self.n = n
-        self.pro = pro(d=d, m=m)     # Initialize the class of problem
+        self.pro = pro(d=d, m=m, ref_num=10000)     # Initialize the class of problem
         self.d = self.pro.d                         # objectives
         self.lower = self.pro.lower
         self.upper = self.pro.upper

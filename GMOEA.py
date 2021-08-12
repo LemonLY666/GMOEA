@@ -56,3 +56,9 @@ class GMOEA(object):
                 population, _ = environment_selection(population, self.gp.n)
                 score.append([evaluated, pro.IGD(population[1])])
         return population, score
+
+
+if __name__ == '__main__':
+    gmoea = GMOEA()
+    gmoea.run()
+
